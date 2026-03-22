@@ -17,8 +17,24 @@ const loadMoreBtn = document.querySelector(".load-more");
 let currentPage = 1;
 let currentQuery = "";
 let totalHits = 0;
+const perPage = 15;
 
-form.addEventListener("submit", async event => {
+function updateLoadMoreVisibility(hitsLength) {
+  const loadedImages = currentPage * perPage;
+
+  if (loadedImages >= totalHits) {
+    hideLoadMoreButton();
+    if (hitsLength > 0) {
+      iziToast.info({
+        message: "We're sorry, but you've reached the end of search results.",
+      });
+    }
+  } else if (hitsLength > 0) {
+    showLoadMoreButton();
+  }
+}
+
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const query = event.target.elements["search-text"].value.trim();
@@ -32,37 +48,35 @@ form.addEventListener("submit", async event => {
   showLoader();
 
   try {
-    const data = await getImagesByQuery(query);
+    const data = await getImagesByQuery(currentQuery, currentPage);
     totalHits = data.totalHits;
 
     if (data.hits.length === 0) {
       iziToast.error({
         message:
           "Sorry, there are no images matching your search query. Please try again!",
-        position: 'topRight',
+        position: "topRight",
         maxWidth: 432,
-        class: "custom-toast"
+        class: "custom-toast",
       });
       return;
     }
 
     createGallery(data.hits);
-    showLoadMoreButton();
+
+    updateLoadMoreVisibility(data.hits.length);
 
   } catch (error) {
-    iziToast.error({
-      message: "Something went wrong",
-    });
-
+    iziToast.error({ message: "Something went wrong" });
   } finally {
     hideLoader();
   }
-
 });
 
 loadMoreBtn.addEventListener("click", async () => {
   currentPage += 1;
 
+  hideLoadMoreButton();
   showLoader();
 
   try {
@@ -70,21 +84,13 @@ loadMoreBtn.addEventListener("click", async () => {
 
     createGallery(data.hits);
 
-    if (currentPage * 15 >= totalHits) {
-      hideLoadMoreButton();
-
-      iziToast.info({
-        message: "We're sorry, but you've reached the end of search results.",
-      });
-    }
+    updateLoadMoreVisibility(data.hits.length);
 
     const card = document.querySelector(".li-elem");
-    const cardHeight = card.getBoundingClientRect().height;
-
-    window.scrollBy({
-      top: cardHeight * 2,
-      behavior: "smooth",
-    });
+    if (card) {
+      const cardHeight = card.getBoundingClientRect().height;
+      window.scrollBy({ top: cardHeight * 2, behavior: "smooth" });
+    }
 
   } catch {
     iziToast.error({ message: "Error" });
