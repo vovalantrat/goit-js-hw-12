@@ -114,7 +114,7 @@ main:has(.back-link) {
   gap: 24px;
   list-style: none;
   padding: 0;
-  margin: 32px auto 0;
+  margin: 32px auto;
   justify-content: flex-start;
 }
 
@@ -185,4 +185,28 @@ main:has(.back-link) {
   letter-spacing: 0.03em;
   width: 322px;
   margin: 0;
+}
+
+.load-more {
+  display: none;
+  margin: 0 auto;
+  border: none;
+  border-radius: 8px;
+  width: 125px;
+  height: 40px;
+  background: #4e75ff;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.load-more.visible {
+  display: block;
+}
+
+.load-more:hover {
+  background: #6c8cff;
 }
